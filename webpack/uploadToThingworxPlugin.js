@@ -1,7 +1,7 @@
-const got = require('got');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 
 class UploadToThingworxPlugin {
     constructor(options) {
@@ -57,17 +57,20 @@ class UploadToThingworxPlugin {
     }
 
     async deleteExtension() {
-        return await got.default.post({
-            url: `${this.options.thingworxServer}/Thingworx/Subsystems/PlatformSubsystem/Services/DeleteExtensionPackage`,
-            headers: {
-                'X-XSRF-TOKEN': 'TWX-XSRF-TOKEN-VALUE',
-                Authorization: this.authorizationHeader,
+        return await axios.post(
+            `${this.options.thingworxServer}/Thingworx/Subsystems/PlatformSubsystem/Services/DeleteExtensionPackage`,
+            { packageName: this.options.packageName },
+            {
+                headers: {
+                    'X-XSRF-TOKEN': 'TWX-XSRF-TOKEN-VALUE',
+                    Authorization: this.authorizationHeader,
+                },
+                auth: {
+                    username: this.options.thingworxUser,
+                    password: this.options.thingworxPassword,
+                },
             },
-            json: { packageName: this.options.packageName },
-            responseType: 'json',
-            username: this.options.thingworxUser,
-            password: this.options.thingworxPassword,
-        });
+        );
     }
 
     async importExtension() {
@@ -86,16 +89,21 @@ class UploadToThingworxPlugin {
         );
 
         // POST request to the ExtensionPackageUploader servlet
-        return await got.default.post({
-            url: `${this.options.thingworxServer}/Thingworx/ExtensionPackageUploader?purpose=import`,
-            headers: {
-                'X-XSRF-TOKEN': 'TWX-XSRF-TOKEN-VALUE',
-                Authorization: this.authorizationHeader,
+        return await axios.post(
+            `${this.options.thingworxServer}/Thingworx/ExtensionPackageUploader?purpose=import`,
+            form,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-XSRF-TOKEN': 'TWX-XSRF-TOKEN-VALUE',
+                    Authorization: this.authorizationHeader,
+                },
+                auth: {
+                    username: this.options.thingworxUser,
+                    password: this.options.thingworxPassword,
+                },
             },
-            body: form,
-            username: this.options.thingworxUser,
-            password: this.options.thingworxPassword,
-        });
+        );
     }
 }
 

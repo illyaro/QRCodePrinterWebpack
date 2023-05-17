@@ -75,17 +75,17 @@ class DescriptionTransformer {
             // In a decorator factory, the decorator itself is the result of invoking
             // the decorator factory function so it doesn't technically have a name; in this case the name
             // of the decorator factory function is considered to be the decorator name.
-            if (decorator.expression.kind == ts.SyntaxKind.CallExpression) {
+            if (decorator.expression.kind === ts.SyntaxKind.CallExpression) {
                 /** @type {ts.CallExpression} */ const callExpression = decorator.expression;
                 if (
-                    callExpression.expression.kind == ts.SyntaxKind.Identifier &&
-                    callExpression.expression.text == name
+                    callExpression.expression.kind === ts.SyntaxKind.Identifier &&
+                    callExpression.expression.text === name
                 ) {
                     return true;
                 }
-            } else if (decorator.expression.kind == ts.SyntaxKind.Identifier) {
+            } else if (decorator.expression.kind === ts.SyntaxKind.Identifier) {
                 /** @type {ts.Identifier} */ const identifierExpression = decorator.expression;
-                if (identifierExpression.text == name) {
+                if (identifierExpression.text === name) {
                     return true;
                 }
             }
@@ -102,11 +102,11 @@ class DescriptionTransformer {
         // The description decorator only makes sense for IDE files
         // An IDE file is identified from its imports - it must import its Thingworx specific
         // decorators from the widgetIDESupport package
-        if (node.kind == ts.SyntaxKind.ImportDeclaration) {
+        if (node.kind === ts.SyntaxKind.ImportDeclaration) {
             /** @type {ts.ImportDeclaration} */ const importNode = node;
 
             /** @type {ts.StringLiteral} */ const module = importNode.moduleSpecifier;
-            if (module.text == 'typescriptwebpacksupport/widgetIDESupport') {
+            if (module.text === 'typescriptwebpacksupport/widgetIDESupport') {
                 this.isIDEFile = true;
             }
         }
@@ -114,7 +114,7 @@ class DescriptionTransformer {
         // There are three kinds of nodes that are relevant to this transformer that will be handled here.
 
         // The first kind is a class declaration node
-        if (node.kind == ts.SyntaxKind.ClassDeclaration && this.isIDEFile) {
+        if (node.kind === ts.SyntaxKind.ClassDeclaration && this.isIDEFile) {
             // Classes must have a `@TWWidgetDefinition` decorator and must not have a `@description` decorator in order to be considered
             if (
                 this.hasDecoratorNamed(WIDGET_CLASS_DECORATOR, node) &&
@@ -128,17 +128,15 @@ class DescriptionTransformer {
                 );
 
                 // Then return a replacement
-                const classNode = this.addDescriptionDecoratorToNode(replacementNode, node);
-
-                return classNode;
+                return this.addDescriptionDecoratorToNode(replacementNode, node);
             }
         }
         // The second kind is a property declaration node
-        else if (node.kind == ts.SyntaxKind.PropertyDeclaration && this.isIDEFile) {
+        else if (node.kind === ts.SyntaxKind.PropertyDeclaration && this.isIDEFile) {
             // Members must be part of a class that has the `@TWWidgetDefinition` decorator
             // and must not have the `@description` decorator themselves
             if (
-                node.parent.kind == ts.SyntaxKind.ClassDeclaration &&
+                node.parent.kind === ts.SyntaxKind.ClassDeclaration &&
                 (this.hasDecoratorNamed(WIDGET_PROPERRTY_DECORATOR, node) ||
                     this.hasDecoratorNamed(WIDGET_EVENT_DECORATOR, node) ||
                     this.hasDecoratorNamed(WIDGET_SERVICE_DECORATOR, node))
@@ -149,11 +147,11 @@ class DescriptionTransformer {
             }
         }
         // The final kind is a method declaration node
-        else if (node.kind == ts.SyntaxKind.MethodDeclaration && this.isIDEFile) {
+        else if (node.kind === ts.SyntaxKind.MethodDeclaration && this.isIDEFile) {
             // Members must be part of a class that has the `@TWWidgetDefinition` decorator
             // and must not have the `@description` decorator themselves
             if (
-                node.parent.kind == ts.SyntaxKind.ClassDeclaration &&
+                node.parent.kind === ts.SyntaxKind.ClassDeclaration &&
                 this.hasDecoratorNamed(WIDGET_SERVICE_DECORATOR, node)
             ) {
                 if (!this.hasDecoratorNamed(DESCRIPTION_DECORATOR, node)) {
@@ -183,7 +181,7 @@ class DescriptionTransformer {
         // Get the first documentation node and use it as the description
         if (documentation.length) {
             for (const documentationNode of documentation) {
-                if (documentationNode.kind == ts.SyntaxKind.JSDocComment) {
+                if (documentationNode.kind === ts.SyntaxKind.JSDocComment) {
                     const comment = documentationNode.comment || '';
                     if (typeof comment != 'string') {
                         description = comment.reduce((acc, val) => acc + val.text, '');

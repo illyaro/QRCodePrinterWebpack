@@ -22,7 +22,7 @@ module.exports = (env, argv) => {
     require('dotenv').config({ path: '.env' });
 
     // look if we are in production or not based on the mode we are running in
-    const isProduction = argv.mode == 'production';
+    const isProduction = argv.mode === 'production';
     const result = {
         entry: {
             // the entry point when viewing the index.html page
@@ -70,9 +70,9 @@ module.exports = (env, argv) => {
                 }.zip`,
                 pathMapper: (assetPath) => {
                     // handles renaming of the bundles
-                    if (assetPath == 'widgetRuntime.bundle.js') {
+                    if (assetPath === 'widgetRuntime.bundle.js') {
                         return packageName + '.runtime.bundle.js';
-                    } else if (assetPath == 'widgetIde.bundle.js') {
+                    } else if (assetPath === 'widgetIde.bundle.js') {
                         return packageName + '.ide.bundle.js';
                     } else {
                         return assetPath;
@@ -108,11 +108,11 @@ module.exports = (env, argv) => {
                         {
                             loader: 'ts-loader',
                             options: {
-                                getCustomTransformers: program => ({
-                                    before: [DescriptionTransformerFactory()]
-                                })
-                            }
-                        }
+                                getCustomTransformers: (program) => ({
+                                    before: [DescriptionTransformerFactory()],
+                                }),
+                            },
+                        },
                     ],
                     exclude: /node_modules/,
                     resourceQuery: { not: [/raw/] },
@@ -131,7 +131,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.css$/,
-                    use: ['style-loader', 'css-loader']
+                    use: ['style-loader', 'css-loader'],
                 },
             ],
         },

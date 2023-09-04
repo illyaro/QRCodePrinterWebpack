@@ -9,11 +9,16 @@ import {
     TWService,
 } from 'typescriptwebpacksupport/widgetRuntimeSupport';
 
-import * as QRCode from 'qrcodejs';
+const QRCode = require('qrcode');
 import * as printJS from 'print-js';
 
 const tableDivBaseID = 'tableDiv-';
 const qrCodeDivBaseID = 'qrcodeDiv-';
+
+type MyObject = {
+    name: string;
+    value: string;
+};
 
 /**
  * The `@TWWidgetDefinition` decorator marks a class as a Thingworx widget. It can only be applied to classes
@@ -32,6 +37,20 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
             '<div id="contentToPrint"></div>' +
             '</div>'
         );
+    }
+
+    @property(canBind('DataToPrintCanBind')) set value(value: object) {
+        console.log('call populate div from inside the canBind');
+        this.populateDiv();
+    }
+    @property('DataToPrint')
+    data_to_print: object;
+
+
+    valueWillBind(value: object, info: TWUpdatePropertyInfo): boolean {
+        console.log('call from valueWillBind. About to update data to print to: ');
+        console.log(value);
+        return true;
     }
 
     @service print(): void {
@@ -58,13 +77,10 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
 
     populateDiv(): void {
         TW.log.info('About to update divs to print');
-        console.log('About to update divs to print')
         let contentToPrint = document.getElementById('contentToPrint');
         this.clearData(contentToPrint);
         const allData = this.getProperty('DataToPrint')
-        console.log('Retrieved data from property DataToPrint: ');
-        console.log(allData);
-        for (let i = 0; i < allData.length; i++) {
+        for (let i = 0; i < allData.rows.length; i++) {
             // Creating row div that holds all data relevant to one qr code
             let div = document.createElement('div');
             div.style.display = "flex"
@@ -74,10 +90,8 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
             let tableDiv = document.createElement('div');
             tableDiv.id = tableDivBaseID + i;
             tableDiv.style.display = "inline-block";
-            console.log('About to create table to with information');
-            this.populateTable(tableDiv, allData[i])
+            this.populateTable(tableDiv, allData.rows[i])
             div.appendChild(tableDiv);
-            console.log('Table created');
 
             // Creating spacer div we need it to ensure proper spacing when printing
             let spacerDiv = document.createElement('div');
@@ -87,22 +101,21 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
 
             // creating qrCode hodler div
             let qrcodeDiv = document.createElement('div');
-            qrcodeDiv.id = qrCodeDivBaseID + i;
+            let divId = qrCodeDivBaseID + i;
+            qrcodeDiv.id = divId;
             qrcodeDiv.style.display = "inline-block";
             div.appendChild(qrcodeDiv);
-            console.log('About to generate qr code');
-            this.generateQRCode(i, allData[i].code);
-            console.log('qr code created');
+            this.generateQRCode(qrcodeDiv, allData.rows[i].code);
         }
     };
 
-    clearData(divToClear): void {
+    clearData(divToClear:HTMLElement): void {
         while (divToClear.firstChild) {
             divToClear.removeChild(divToClear.firstChild);
         }
     };
 
-    populateTable(tableDiv, associatedData): void {
+    populateTable(tableDiv: HTMLDivElement, associatedData): void {
         let table = document.createElement('table');
         table.classList.add('myTable');
         this.createRow(table, 'th', { 'name': 'Property', 'value': 'Value' });
@@ -112,7 +125,7 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
         tableDiv.appendChild(table);
     };
 
-    createRow(table, rowType, row): void {
+    createRow(table: HTMLTableElement, rowType: string, row: MyObject): void {
         let newRow = document.createElement('tr');
         newRow.classList.add('myTable');
 
@@ -131,22 +144,20 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
         table.appendChild(newRow);
     };
 
-    generateQRCode(index, code): void {
-        let divId = qrCodeDivBaseID + index;
+    generateQRCode(div: HTMLDivElement, code: string): void {
         let config = {
-            'width': this.getProperty("CodeSize"),
-            'height': this.getProperty("CodeSize"),
-            'colorDark': "#000000",
-            'colorLight': "#ffffff",
-            'correctLevel': this.getProperty("Redundancy") // Error correction level
+            'width': this.getProperty("codeSize"),
+            'errorCorrectionLevel': this.getProperty("Redundancy") // Error correction level
         };
         try {
-            let generatedCode = new QRCode(divId, config);
-            try {
-                generatedCode.makeCode(code);
-            } catch (e) {
-                console.log('Error generating qr code: ' + e);
-            }
+            QRCode.toCanvas(code, config, function (error, canvas) {
+                if (error) {
+                    throw error;
+                }
+                TW.log.info('QR code generated and inserted into the div.');
+                div.appendChild(canvas);
+
+            });
         } catch (e) {
             console.log('Error in setup qr code: ' + e);
         }

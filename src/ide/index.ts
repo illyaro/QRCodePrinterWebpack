@@ -48,16 +48,16 @@ class QrCodePrinterWebpack extends TWComposerWidget {
     height: number;
 
     @description('The size of resultiong QR code')
-    @property('NUMBER', bindingTarget, defaultValue(128))
+    @property('NUMBER', bindingTarget, defaultValue(150))
     codeSize: number;
 
-    @property('NUMBER', 
-        defaultValue(1), 
+    @property('STRING', 
+        defaultValue('L'), 
         selectOptions([
-            { text: '7 %', value: '1' },  // 'QRCode.CorrectLevel.L'
-			{ text: '15 %', value: '0' }, // 'QRCode.CorrectLevel.M'
-			{ text: '25 %', value: '3' }, // 'QRCode.CorrectLevel.Q'
-			{ text: '30 %', value: '2' }  // 'QRCode.CorrectLevel.H'
+            { text: '7 %', value: 'L' },  // 'QRCode.CorrectLevel.L'
+			{ text: '15 %', value: 'M' }, // 'QRCode.CorrectLevel.M'
+			{ text: '25 %', value: 'Q' }, // 'QRCode.CorrectLevel.Q'
+			{ text: '30 %', value: 'H' }  // 'QRCode.CorrectLevel.H'
         ]))
     Redundancy: number;
 

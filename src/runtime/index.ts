@@ -39,19 +39,20 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
         );
     }
 
-    @property(canBind('DataToPrintCanBind')) set value(value: object) {
+    @property(canBind('DataToPrintCanBind')) set DataToPrint(value: object) {
         console.log('call populate div from inside the canBind');
-        this.populateDiv();
+        //this.populateDiv();
     }
+     
     @property('DataToPrint')
     data_to_print: object;
 
-
-    valueWillBind(value: object, info: TWUpdatePropertyInfo): boolean {
-        console.log('call from valueWillBind. About to update data to print to: ');
-        console.log(value);
+    DataToPrintCanBind(value: object, info: TWUpdatePropertyInfo): boolean {
+        console.log(`Value DataToPrint will be updated to ${value}`);
+        // this.setProperty('EnableQRCodeGeneration', value);
         return true;
     }
+
 
     @service print(): void {
         this.populateDiv();
@@ -60,6 +61,19 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
             type: "html",
             documentTitle: "Print Document"
         });
+    }
+
+    @property(canBind('EnableQRCodeGenerationProp')) set EnableQRCodeGeneration(value: boolean) {
+        console.log('call EnableQRCodeGenerationProp from inside the canBind');
+    }
+
+    @property('EnableQRCodeGeneration')
+    Enable_QR_Code_Generation: boolean;
+ 
+    EnableQRCodeGenerationProp(value: boolean, info: TWUpdatePropertyInfo): boolean {
+        console.log(`Value Enable qr code will be updated to ${value}`);
+        // this.setProperty('EnableQRCodeGeneration', value);
+        return true;
     }
 
     afterRender(): void {
@@ -92,8 +106,8 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
             tableDiv.style.display = "inline-block";
             this.populateTable(tableDiv, allData.rows[i])
             div.appendChild(tableDiv);
-
-            if(this.getProperty('QRCodeGenerationEnabled')){
+            console.log("Is enabled printing: " + this.getProperty('EnableQRCodeGeneration'));
+            if(this.getProperty('EnableQRCodeGeneration')){
                 // Creating spacer div we need it to ensure proper spacing when printing
                 let spacerDiv = document.createElement('div');
                 spacerDiv.style.display = 'inline-block';

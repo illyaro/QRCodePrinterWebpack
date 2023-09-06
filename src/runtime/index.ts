@@ -93,19 +93,21 @@ class QrCodePrinterWebpack extends TWRuntimeWidget {
             this.populateTable(tableDiv, allData.rows[i])
             div.appendChild(tableDiv);
 
-            // Creating spacer div we need it to ensure proper spacing when printing
-            let spacerDiv = document.createElement('div');
-            spacerDiv.style.display = 'inline-block';
-            spacerDiv.style.width = '20px';
-            div.appendChild(spacerDiv);
+            if(this.getProperty('QRCodeGenerationEnabled')){
+                // Creating spacer div we need it to ensure proper spacing when printing
+                let spacerDiv = document.createElement('div');
+                spacerDiv.style.display = 'inline-block';
+                spacerDiv.style.width = '20px';
+                div.appendChild(spacerDiv);
 
-            // creating qrCode hodler div
-            let qrcodeDiv = document.createElement('div');
-            let divId = qrCodeDivBaseID + i;
-            qrcodeDiv.id = divId;
-            qrcodeDiv.style.display = "inline-block";
-            div.appendChild(qrcodeDiv);
-            this.generateQRCode(qrcodeDiv, allData.rows[i].code);
+                // creating qrCode hodler div
+                let qrcodeDiv = document.createElement('div');
+                let divId = qrCodeDivBaseID + i;
+                qrcodeDiv.id = divId;
+                qrcodeDiv.style.display = "inline-block";
+                div.appendChild(qrcodeDiv);
+                this.generateQRCode(qrcodeDiv, allData.rows[i].code);
+            }
         }
     };
 

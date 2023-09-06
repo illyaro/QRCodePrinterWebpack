@@ -51,6 +51,10 @@ class QrCodePrinterWebpack extends TWComposerWidget {
     @property('NUMBER', bindingTarget, defaultValue(150))
     codeSize: number;
 
+    @description('This value can enable generation of qr code')
+    @property('BOOLEAN', bindingTarget, defaultValue(true))
+    QRCodeGenerationEnabled: boolean;
+
     @property('STRING', 
         defaultValue('L'), 
         selectOptions([
